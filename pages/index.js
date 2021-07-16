@@ -79,8 +79,8 @@ export default function Home() {
           allCommunities {
             id
             title
-            imageurl
-            creatorslog
+            imageUrl
+            creatorSlog
           }
         }`})
       })
@@ -115,8 +115,8 @@ export default function Home() {
 
               const comunidade = {
                 title: dadosDoForm.get('title'),
-                imageurl: dadosDoForm.get('image'),
-                creatorslug: githubUser,
+                imageUrl: dadosDoForm.get('image'),
+                creatorSlog: githubUser,
               }
 
               fetch('/api/comunidades', {
