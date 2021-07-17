@@ -3,15 +3,16 @@ import MainGrid from '../src/components/MainGrid'
 import Box from '../src/components/box'
 import { AlurakutMenu, AlurakutProfileSidebarMenuDefault, OrkutNostalgicIconSet } from '../src/lib/alurakutCommons';
 import { ProfileRelationsBoxWrapper } from '../src/components/profileRelations';
-
-function ProfileSideBar(propriedade) {
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken'
+function ProfileSideBar(props) {
   return (
     <Box as = "aside">
-      <img img src={`https://github.com/${propriedade.githubUser}.png`} style={{ borderRadius: '8px' }} />
+      <img src={`https://github.com/${props.githubUser}.png`} style={{ borderRadius: '8px' }} />
       <hr />
       <p>
-        <a className="boxlink" href={`https://github.com/${propriedade.githubUser}`} >
-          @{propriedade.githubUser}
+        <a className="boxlink" href={`https://github.com/${props.githubUser}`} >
+          @{props.githubUser}
         </a>
       </p>
 
@@ -21,11 +22,11 @@ function ProfileSideBar(propriedade) {
     </Box>
   )
 }
-function ProfileRelationsBox (propriedade){
+function ProfileRelationsBox (props){
   return(
     <ProfileRelationsBoxWrapper>
     <h2 className="smallTitle">
-    {propriedade.title} ({propriedade.itens.length})
+    {props.title} ({props.itens.length})
   </h2>
 
   <ul>
@@ -46,10 +47,10 @@ function ProfileRelationsBox (propriedade){
 }
 
 
-export default function Home() {
+export default function Home(props) {
   const [comunidades,setComunidades] = React.useState([]);
-
-  const githubUser = 'RiandroProenca';
+  const githubUser = props.githubUser;
+  
 
   const amigos = [
     'vanisantos',
@@ -196,4 +197,30 @@ export default function Home() {
       </MainGrid>
     </>
   )
+}
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context)
+  const token = cookies.USER_TOKEN;
+  const { isAuthenticated } = await fetch('https://alurakut.vercel.app/api/auth', {
+    headers: {
+        Authorization: token
+      }
+  })
+  .then((resposta) => resposta.json())
+
+  if(!isAuthenticated) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      }
+    }
+  }
+
+  const { githubUser } = jwt.decode(token);
+  return {
+    props: {
+      githubUser
+    }, 
+  }
 }
